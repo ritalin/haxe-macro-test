@@ -6,17 +6,20 @@ import haxe.macro.Context;
 @TestFixture
 class FooTest {
 	public function new() { 
-		this.called = false;
+		this.startupCalled = false;
 	}
 
-	public function run() {
-		Reflect.callMethod(this, Reflect.field(this, 'testMethod'), []);
-	}
+	public var startupCalled(default, null): Bool;
+	public var methodCalled(default, null): Bool;
 
-	public function testMethod() {
-		this.called = true;
+	@StartUp
+	public function startup() {
+		this.methodCalled = false;
+		this.startupCalled = true;
 	}
 
 	@Test
-	public var called(default, null): Bool;
+	public function testMethod() {
+		this.methodCalled = true;
+	}
 }
