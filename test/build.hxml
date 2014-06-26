@@ -1,0 +1,5 @@
+-lib munit
+-main TestMain
+-cp ../src
+-cp src
+-neko macroRunner.n
