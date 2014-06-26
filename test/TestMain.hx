@@ -12,7 +12,7 @@ class TestMain {
 		var foo = new FooTest();
 
 		trace(foo.called);
-		foo.testMethod();
+		foo.run();
 		trace(foo.called);
 
 		return macro null;
