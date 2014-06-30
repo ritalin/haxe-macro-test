@@ -1,73 +1,26 @@
 package ;
 
-import Type in StdType;
-import haxe.macro.Context;
-import haxe.macro.Type;
-
 import FooTest;
-
-using Lambda;
+import macrotest.MacroTestRunner;
 
 class TestMain {
+	macro
 	static function main() {
 		runAtMacro();
 	}
 
-	macro
-	private static function runAtMacro() {
+	static function runAtMacro() {
 		var foo = new FooTest();
+		var runner = new MacroTestRunner();
 
 		trace('startupCalled: ${foo.startupCalled}');
 		trace('methodCalled: ${foo.methodCalled}');
-		runTest(FooTest, foo);
+		trace('teardownCalled: ${foo.teardownCalled}');
+		runner.run(FooTest, foo);
 		trace('startupCalled: ${foo.startupCalled}');
 		trace('methodCalled: ${foo.methodCalled}');
+		trace('teardownCalled: ${foo.teardownCalled}');
 
 		return macro null;
-	}
-
-	public static function runTest(type, test) {
-		var className = StdType.getClassName(type);
-
-		for (name in extractTestMethod(className, ['StartUp'])) {
-			Reflect.callMethod(test, Reflect.field(test, name), []);
-
-			trace('called startup: ${name}');
-		}
-
-		for (name in extractTestMethod(className, ['Test'])) {
-			Reflect.callMethod(test, Reflect.field(test, name), []);
-
-			trace('called method: ${name}');
-		}
-	}
-
-	private static function extractTestMethod(className, meta: Array<String>) {
-		var isMethod = function(field) {
-			return 
-				switch (field.kind) {
-				case FMethod(_): true;
-				default: false;
-				}
-			;
-		}
-
-		var isMetaAccepted = function(field: ClassField) {
-			return
-				field.meta.get().exists(
-					function(m) return meta.has(m.name)
-				)
-			;
-		}
-
-		return
-			switch (Context.getType(className)) {
-			case TInst(_.get().fields.get() => fields, _):
-				fields
-					.filter(function(f) return f.isPublic && isMethod(f) && isMetaAccepted(f))
-					.map(function(f) return f.name);
-			default: [];
-			}
-		;	
 	}
 }
