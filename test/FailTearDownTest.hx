@@ -1,24 +1,16 @@
 package ;
 
-import haxe.macro.Context;
-
-
 @TestFixture
-class FooTest {
+class FailTearDownTest {
 	public var logs: Array<String>;
 
 	public function new() { 
 		this.logs = [];
 	}
 
-	@SetUp
-	public function setUp() {
-		this.logs.push("setUp");
-	}
-
 	@TearDown
 	public function tearDown() {
-		this.logs.push("tearDown");
+		throw "Error occured at tear down";
 	}
 
 	@Test

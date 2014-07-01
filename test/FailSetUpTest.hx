@@ -1,10 +1,7 @@
 package ;
 
-import haxe.macro.Context;
-
-
 @TestFixture
-class FooTest {
+class FailSetUpTest {
 	public var logs: Array<String>;
 
 	public function new() { 
@@ -12,8 +9,10 @@ class FooTest {
 	}
 
 	@SetUp
-	public function setUp() {
-		this.logs.push("setUp");
+	public function failSetUp() {
+		this.logs.push("failSetUp");
+
+		throw "Set-up has failed";
 	}
 
 	@TearDown
@@ -22,7 +21,7 @@ class FooTest {
 	}
 
 	@Test
-	public function testMethod() {
+	public function testMethod() { 
 		this.logs.push("testMethod");
 	}
 }

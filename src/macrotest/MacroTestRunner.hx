@@ -5,34 +5,61 @@ import haxe.macro.Context;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 
+import massive.munit.AssertionException;
+
 using Lambda;
 
 class MacroTestRunner {
 	public function new() { }
 
-	public function run(type, inst) {
-		var methods = listAllMethod(StdType.getClassName(type));
+	public function run<T>(type: Class<T>, inst: T) {
+		var typeName = StdType.getClassName(type);
+		var methods = listAllMethod(typeName);
 
+		var result = new TestResult();
 
 		for (name in extractTestMethod(methods, ['Test'])) {
-			for (name in extractTestMethod(methods, ['StartUp'])) {
-				Reflect.callMethod(inst, Reflect.field(inst, name), []);
+			result.testStarted();
 
-				trace('called start up: ${name}');
+			try {
+				for (name in extractTestMethod(methods, ['SetUp'])) {
+					Reflect.callMethod(inst, Reflect.field(inst, name), []);
+
+					trace('called start up: ${typeName}::${name}');
+				}
+
+				{
+					Reflect.callMethod(inst, Reflect.field(inst, name), []);
+
+					trace('called method: ${typeName}::${name}');
+				}
+			}
+			catch (ex: AssertionException) {
+				trace("fail assertion captured");
+
+				result.testFailed();
+			}
+			catch (_: Dynamic) {
+				trace("error captured");
+
+				result.errorOccured();
 			}
 
-			{
-				Reflect.callMethod(inst, Reflect.field(inst, name), []);
+			try {
+				for (name in extractTestMethod(methods, ['TearDown'])) {
+					Reflect.callMethod(inst, Reflect.field(inst, name), []);
 
-				trace('called method: ${name}');
+					trace('called tear down: ${typeName}::${name}');
+				}
 			}
+			catch (_: Dynamic) {
+				trace("tear down error captured");
 
-			for (name in extractTestMethod(methods, ['TearDown'])) {
-				Reflect.callMethod(inst, Reflect.field(inst, name), []);
-
-				trace('called tear down: ${name}');
+				result.errorOccured();
 			}
-		}		
+		}	
+
+		return result;	
 	}
 
 	private function listAllMethod(className) {
