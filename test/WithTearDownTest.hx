@@ -1,5 +1,6 @@
 package ;
 
+@TestFixture
 class WithTearDownTest {
 	public var logs: Array<String>;
 

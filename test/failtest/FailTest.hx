@@ -2,6 +2,7 @@ package failtest;
 
 import massive.munit.Assert;
 
+@TestFixture
 class FailTest {
 	public var logs: Array<String>;
 

@@ -28,26 +28,33 @@ class TestFinder {
 	}
 
 	public function listTestClassNames(): Array<String> {
+		return this.listTestClassNamesInternal(this.rootDir, []);
+	}
+
+	private function listTestClassNamesInternal(parent, packages: Array<String>): Array<String> {
 		var classes = [];
 
-		for (file in sys.FileSystem.readDirectory('.')) {
-			var p = new haxe.io.Path(file);
-
-			if(p.ext != "hx" ) continue;
+		for (file in sys.FileSystem.readDirectory(parent)) {
+			var p = new haxe.io.Path('${parent}/${file}');
 
 			var types = 
-				Context.getModule(p.file)
-				.map(this.classFilter)
-				.filter(this.filterTestFixture)
-				.map(this.extractClassName)
+				if (sys.FileSystem.isDirectory(p.toString())) {
+					this.listTestClassNamesInternal(p.toString(), packages.concat([file]));
+				}
+				else if(p.ext == "hx" ) {
+					Context.getModule(packages.concat([p.file]).join('.'))
+						.map(this.classFilter)
+						.filter(this.filterTestFixture)
+						.map(this.extractClassName)
+					;
+				}
+				else {
+					[];
+				}
 			;
 
 			classes = classes.concat(types);
-
-			// trace(StdType.enumConstructor(type));
 		}	
-		
-		trace(classes);
 
 		return classes;	
 	}
@@ -76,7 +83,9 @@ class TestFinder {
 		return
 			switch (t) {
 			case Some(ct):
-				ct.name;
+				var pkg = ct.pack.join(".");
+
+				pkg != '' ? '${pkg}.${ct.name}' : ct.name;
 
 			default: "";
 			}

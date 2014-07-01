@@ -1,9 +1,18 @@
 package ;
 
+import Type in StdType;
+
 import macrotest.TestResult;
 import macrotest.MacroTestRunner;
+import macrotest.TestFinder;
 
 import massive.munit.Assert;
+
+import failtest.FailSetUpTest;
+import failtest.FailTearDownTest;
+import failtest.FailTest;
+
+using Lambda;
 
 class TestMain {
 	static function main() {
@@ -14,7 +23,8 @@ class TestMain {
 	public static function runAtMacro() {
 		var runner = new MacroTestRunner();
 
-		testResultFormatting(runner);
+		testResultFormatting();
+		testTestFinder();
 
 		testOnly(runner);
 		testWithSetUp(runner);
@@ -24,7 +34,7 @@ class TestMain {
 		testFailSetUp(runner);
 		testFailTearDown(runner);
 		testFailed(runner);
-		
+
 		return macro null;
 	}
 
@@ -125,7 +135,7 @@ class TestMain {
 		// Assert.areEqual("3 run(s), 1 failed, 0 error(s)", result.summary());				
 	}
 
-	public static function testResultFormatting(runner) {
+	public static function testResultFormatting() {
 		var result = new TestResult();
 		result.testStarted();
 		result.testFailed();
@@ -135,4 +145,37 @@ class TestMain {
 
 		Assert.areEqual("3 run(s), 1 failed, 1 error(s)", result.summary());
 	}  
+
+	public static function testTestFinder() {
+		var finder = new TestFinder(".");
+
+		var names = finder.listTestClassNames();
+
+		Assert.areEqual(8, names.length);
+		Assert.areNotEqual(-1, names.indexOf("FooTest"));
+		Assert.areNotEqual(-1, names.indexOf("HogeTest"));
+		Assert.areNotEqual(-1, names.indexOf("MostSimpleTest"));
+		Assert.areNotEqual(-1, names.indexOf("WithSetUpTest"));
+		Assert.areNotEqual(-1, names.indexOf("WithTearDownTest"));
+
+		Assert.areNotEqual(-1, names.indexOf("failtest.FailSetUpTest"));
+		Assert.areNotEqual(-1, names.indexOf("failtest.FailTearDownTest"));
+		Assert.areNotEqual(-1, names.indexOf("failtest.FailTest"));
+
+		var classes = 
+			finder.map(function(c) return StdType.getClassName(c)).array()
+		;
+
+		Assert.areEqual(8, classes.length);
+
+		Assert.areNotEqual(-1, classes.indexOf("FooTest"));
+		Assert.areNotEqual(-1, classes.indexOf("HogeTest"));
+		Assert.areNotEqual(-1, classes.indexOf("MostSimpleTest"));
+		Assert.areNotEqual(-1, classes.indexOf("WithSetUpTest"));
+		Assert.areNotEqual(-1, classes.indexOf("WithTearDownTest"));
+
+		Assert.areNotEqual(-1, classes.indexOf("failtest.FailSetUpTest"));
+		Assert.areNotEqual(-1, classes.indexOf("failtest.FailTearDownTest"));
+		Assert.areNotEqual(-1, classes.indexOf("failtest.FailTest"));
+	}
 }
