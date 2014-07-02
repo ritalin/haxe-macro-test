@@ -11,19 +11,28 @@ class TestResult {
 		this.errors = 0;
 	}
 
-	public function testStarted() {
+	public function testStarted(): Void {
 		++this.runs;
 	}
 
-	public function testFailed() {
+	public function testFailed(): Void {
 		++this.fails;
 	}
 
-	public function errorOccured() {
+	public function errorOccured(): Void {
 		++this.errors;
 	}
 
-	public function summary() {
+	public function summary(): String {
 		return '${runs} run(s), ${fails} failed, ${errors} error(s)';
+	}
+
+	public function concat(r: TestResult): TestResult {
+		var result = new TestResult();
+		result.runs = this.runs + r.runs;
+		result.fails += this.fails + r.fails;
+		result.errors += this.errors + r.errors;
+
+		return result;
 	}
 }

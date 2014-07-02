@@ -35,6 +35,8 @@ class TestMain {
 		testFailTearDown(runner);
 		testFailed(runner);
 
+		testAll(runner);
+
 		return macro null;
 	}
 
@@ -43,10 +45,11 @@ class TestMain {
 
 		Assert.areEqual(0, inst.logs.length);
 
-		runner.run(MostSimpleTest, inst);
+		var result = runner.run(MostSimpleTest, inst);
 
 		Assert.areEqual(1, inst.logs.length);
 		Assert.areEqual("testMethod", inst.logs.join(" "));		
+		Assert.areEqual("1 run(s), 0 failed, 0 error(s)", result.summary());
 	}
 
 	public static function testWithSetUp(runner: MacroTestRunner) {
@@ -54,10 +57,11 @@ class TestMain {
 
 		Assert.areEqual(0, inst.logs.length);
 
-		runner.run(WithSetUpTest, inst);
+		var result = runner.run(WithSetUpTest, inst);
 
 		Assert.areEqual(2, inst.logs.length);
 		Assert.areEqual("setUp testMethod", inst.logs.join(" "));
+		Assert.areEqual("1 run(s), 0 failed, 0 error(s)", result.summary());
 	}
 
 	public static function testWithTearDown(runner) {
@@ -65,11 +69,11 @@ class TestMain {
 
 		Assert.areEqual(0, inst.logs.length);
 
-		runner.run(WithTearDownTest, inst);
+		var result = runner.run(WithTearDownTest, inst);
 
 		Assert.areEqual(2, inst.logs.length);
 		Assert.areEqual("testMethod tearDown", inst.logs.join(" "));
-
+		Assert.areEqual("1 run(s), 0 failed, 0 error(s)", result.summary());
 	}
 
 	public static function testFoo(runner) {
@@ -132,7 +136,13 @@ class TestMain {
 		Assert.areEqual(2, inst.logs.length);
 		Assert.areEqual("test1 test3", inst.logs.join(" "));
 
-		// Assert.areEqual("3 run(s), 1 failed, 0 error(s)", result.summary());				
+		Assert.areEqual("3 run(s), 1 failed, 0 error(s)", result.summary());				
+	}
+
+	public static function testAll(runner) {
+		var result = runner.runAll(new TestFinder("."));
+
+		Assert.areEqual("12 run(s), 1 failed, 2 error(s)", result.summary());
 	}
 
 	public static function testResultFormatting() {

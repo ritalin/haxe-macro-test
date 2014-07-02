@@ -95,4 +95,21 @@ class MacroTestRunner {
 			.map(function(f) return f.name)
 		;	
 	}
+
+	public function runAll(finder: TestFinder) {
+		return 
+			finder
+			.map(function (cls: Class<Dynamic>) {
+				var inst = StdType.createInstance(cls, []);
+
+				return this.run(cls, inst);
+			})
+			.fold(
+				function (r, seed: TestResult) {
+					return seed.concat(r);
+				},
+				new TestResult()
+			)
+		;
+	}
 }
